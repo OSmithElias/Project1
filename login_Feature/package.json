@@ -1,0 +1,15 @@
+{
+  "name": "login_feature",
+  "version": "1.0.0",
+  "description": "Login feature for foundations project",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Oneil SE",
+  "license": "ISC",
+  "dependencies": {
+    "bluebird": "^3.7.2",
+    "jsonwebtoken": "^9.0.0"
+  }
+}
