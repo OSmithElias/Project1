@@ -183,10 +183,10 @@ app.post("/submitreimbursements", async (req,res)=>{
 ////////////////////////////////////////////////////////////////////
 // get ticket based on the reimbursement id
 app.get("/reimbursements/:id", async (req,res)=>{
-    const reimbursement_id=req.body.reimbursement_id
+    //const reimbursement_id=req.body.reimbursement_id
 
     try{
-        let data = await retrieveTicket(reimbursement_id)
+        let data = await retrieveTicket(req.params.id)
 
         if(data.Item){
             res.statusCode=200
@@ -194,7 +194,7 @@ app.get("/reimbursements/:id", async (req,res)=>{
         }else{
             res.statusCode=400
             res.send({
-                "message" : `Ticket ${reimbursement_id} does not exist`
+                "message" : `Ticket ${req.params.id} does not exist`
             })
 
         }
@@ -208,7 +208,7 @@ app.get("/reimbursements/:id", async (req,res)=>{
 })
 
 ////////////////////////////////////////////////////
-// Manager acces all tickets 
+// Manager access all tickets 
 
 app.get("/allReimbursements" , async (req,res)=>{
     const token= req.headers.authorization.split(" ")[1];
@@ -291,31 +291,36 @@ app.get('/reimbursementsbyuser', async (req, res) => {
 app.patch('/reimbursements/:id/status', async (req, res) => {
     const token= req.headers.authorization.split(" ")[1];
     const newStatus = req.body.newStatus;
-    const reimbursement_id= req.body.reimbursement_id
+    //const reimbursement_id= req.body.reimbursement_id
 
 
     try {
 
         payload = await verifyTokenAndReturnPayload(token);
         const role = payload.role
-        const data = await retrieveTicket(reimbursement_id);
+        const data = await retrieveTicket(req.params.id);
         const userItem= data.Item;
         const status= userItem.status
 
         if(role=="admin"&& status=="pending"){
             
             if (userItem) {
-                await updateStatusById(reimbursement_id, newStatus);
+                await updateStatusById(req.params.id, newStatus);
                 res.send({
-                    "message": `Successfully updated status of item with id ${reimbursement_id}`
+                    "message": `Successfully updated status of item with id ${req.params.id}`
                 });
             } else {
                 res.statusCode = 404;
                 res.send({
-                    "message": `Item does not exist with id ${reimbursement_id}`
+                    "message": `Item does not exist with id ${req.params.id}`
                 });
             }
-        }else{}
+        }else if(role=="admin"&&status!=="pending"){
+            res.send({
+                "message":`Ticket with ${req.params.id} has already been approved or denied and can not be changed`
+            })
+        }
+        
        
     } catch (err) {
         res.statusCode = 500;
